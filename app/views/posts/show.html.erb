@@ -1,1 +1,36 @@
+<h5><%=@post.title%></h5>
+<br>
 
+<%@post.categories.each do |c|%>
+    <div><%= link_to c.name, category_path(c)%></div>
+<%end%>
+<br>
+
+<p><%=@post.content %></p>
+<br>
+
+<%@post.comments.each do |com|%>
+    <p><%= link_to com.user.username, user_path(com.user)%> says: 
+    <%= com.content%></p>
+<%end%>
+<br>
+
+<p>Users who've commented:</p> <%# not working :(%>
+<ul>
+    <%@post.users.uniq do |u|%>
+        <li><%= link_to u.username, user_path(u)%></li>
+    <%end%>
+</ul>
+
+<%= form_for @post.comments.build do |f| %>
+    <%= f.label "User" %>
+    <%= f.collection_select :user_id, User.all, :id, :username %>
+    <%= f.hidden_field :post_id, value: @post.id %>
+    Username not found? Add it here:
+    <%= f.fields_for :user, @post.comments.last.build_user do |user_fields| %>
+        <%= user_fields.text_field :username %>
+    <%end%>
+    <%= f.label "Content" %>
+    <%= f.text_area :content %>
+    <%= f.submit %>
+<% end %>
